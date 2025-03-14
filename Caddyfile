@@ -1,0 +1,32 @@
+{
+    local_certs
+    auto_https disable_redirects
+    {$CADDY_GLOBAL_OPTIONS}
+
+    frankenphp {
+        #worker /path/to/your/worker.php
+        {$FRANKENPHP_CONFIG}
+    }
+
+    # Orden de ejecución de directivas para el manejo de PHP y archivos
+    order php_server before file_server
+    order php before file_server
+    order request_header before php_server
+}
+
+{$CADDY_EXTRA_CONFIG}
+
+{$SERVER_NAME:localhost} {
+    @static {
+        file
+        path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff
+    }
+
+    # Actualizado para apuntar a la carpeta pública de Pelican Panel
+    root * /var/www/pelican/public
+    encode br zstd gzip
+
+    {$CADDY_SERVER_EXTRA_DIRECTIVES}
+
+    php_server
+}
